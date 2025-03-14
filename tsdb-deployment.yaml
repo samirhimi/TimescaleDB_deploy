@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsdb
+  labels:
+    app: tsdb
+spec: 
+  selector:
+    matchLabels:
+      app: tsdb
+  template:
+    metadata:
+      labels:
+        app: tsdb
+    spec:
+      containers:
+        - name: timescale
+          image: timescale/timescaledb:latest-pg16
+          ports:
+            - containerPort: 5432
+              name: tsdb
+          env:
+            - name: POSTGRES_DB
+              valueFrom: 
+                secretKeyRef:
+                  name: tsdb-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom: 
+                secretKeyRef:
+                  name: tsdb-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: tsdb-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_PORT
+              valueFrom: 
+                secretKeyRef:
+                  name: tsdb-secret
+                  key: POSTGRES_PORT
+          envFrom:
+            - configMapRef:
+                name: tsdb-cm
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: data
+              subPath: tsdb
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -h
+                - localhost
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -h
+                - localhost
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: tsdb-data

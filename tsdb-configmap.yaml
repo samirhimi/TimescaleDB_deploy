@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tsdb-cm
+  labels:
+    app: tsdb
+data:
+  TS_TUNE_LOGGING: "false"
+  TS_TUNE_AUTO_TUNING: "false"
+  TS_TUNE_BGWRITER: "off"
+  TS_TUNE_CHECKPOINTS: "off"
+  TS_TUNE_AUTOVACUUM: "off"
+  TS_TUNE_ANALYZE: "off"
+  TS_TUNE_STATS: "off"  
+  TS_TUNE_MAINTENANCE: "off"
+  TS_SSL: "off"
+  TS_SSL_CHECK_HOSTNAME: "off"
+  TS_SSL_MODE: "disable"
